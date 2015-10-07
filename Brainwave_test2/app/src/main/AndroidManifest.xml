@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.tseng.brainwave_test" >
+
+    <uses-feature android:name="android.hardware.camera" />
+
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.hardware.camera.autofocus" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/icon_new"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/app_id"/>
+        <activity
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name"
+            android:name="com.facebook.FacebookActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+
+        <provider
+            android:authorities="com.facebook.app.FacebookContentProvider1638670579709395"
+            android:exported="true"
+            android:name="com.facebook.FacebookContentProvider"/>
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        </activity>
+        <activity
+            android:name="Cameramodel"
+            android:label="@string/title_activity_cameramodel"
+            android:screenOrientation="landscape"
+            android:launchMode="singleTask">
+        </activity>
+        <activity
+            android:name=".braininfo"
+            android:label="@string/title_activity_braininfo"
+            android:launchMode="singleTask">
+        </activity>
+        <activity
+            android:name=".PicturePool"
+            android:label="@string/title_activity_picture_pool"
+            android:launchMode="singleTask">
+        </activity>
+
+        <service android:name=".handlerService" />
+    </application>
+
+</manifest>

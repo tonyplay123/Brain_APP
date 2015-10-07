@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Brainwave_test</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_cameramodel">Cameramodel</string>
+    <string name="title_activity_braininfo">腦波資訊</string>
+    <string name="title_activity_platformmodel">platformmodel</string>
+    <string name="cannot">Cannot</string>
+    <string name="album_name">BrainPic</string>
+    <string name="title_activity_picture_pool">PicturePool</string>
+    <string name="title_activity_welcome">Welcome</string>
+    <string name="camera_not_found">can not found camera</string>
+    <string name="ok_label">確定</string>
+    <string name="cancel">取消</string>
+    <string name="app_id">1638670579709395</string>
+</resources>
