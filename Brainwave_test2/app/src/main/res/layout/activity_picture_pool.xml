@@ -40,7 +40,7 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/sharebutton"
+            android:id="@+id/picturebutton"
             android:src="@drawable/image"
             android:layout_alignBottom="@+id/camerabutton"
             android:layout_alignParentEnd="true"
@@ -60,6 +60,14 @@
         android:stretchMode="columnWidth"
         android:verticalSpacing="10dp"
         android:layout_above="@+id/buttonlayout" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:src="@drawable/share_512" />
 
 
 </RelativeLayout>

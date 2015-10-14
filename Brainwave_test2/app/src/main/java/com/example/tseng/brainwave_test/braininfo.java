@@ -1,7 +1,9 @@
 package com.example.tseng.brainwave_test;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
@@ -12,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,7 +26,7 @@ public class braininfo extends ActionBarActivity {
     TextView relax;
     String attention;
     String medititon;
-    ImageView relaxten,relaxone,attentionten,attentionone;
+    ImageView relaxten,relaxone,attentionten,attentionone,attentionText,relaxText;
     int temprelax,tempattention;
 
 
@@ -58,9 +61,12 @@ public class braininfo extends ActionBarActivity {
                         int med = intent.getIntExtra(handlerService.EXTRA_MEDITATION,0);
                         mednumberone(med,relaxone);
                         mednumberten(med,relaxten);
+                        tempattention=att;//用來暫存成全域變數
+                        temprelax=med;
                     }
                 }, new IntentFilter(handlerService.ACTION_LOCATION_BROADCAST)
         );
+
 
 
         ImageButton camerabtn = (ImageButton) findViewById(R.id.camerabutton);
@@ -69,6 +75,11 @@ public class braininfo extends ActionBarActivity {
         ImageButton picturebtn =(ImageButton) findViewById(R.id.picturebutton);
         picturebtn.setOnClickListener(pictureListener);
 
+        ImageView atttext =(ImageView) findViewById(R.id.attentiontext);
+        atttext.setOnLongClickListener(atttextListener);
+
+        ImageView relaxtext =(ImageView) findViewById(R.id.relaxtext);
+        relaxtext.setOnLongClickListener(relaxtextListener);
 
 
 
@@ -120,6 +131,68 @@ public class braininfo extends ActionBarActivity {
                 }
             };
 
+    private ImageView.OnLongClickListener atttextListener=new ImageView.OnLongClickListener(){
+
+        @Override
+        public boolean onLongClick(View v) {
+
+            if(tempattention>=0&&tempattention<=20){
+                ShowAttentionMsgDialog("你的專注度為"+tempattention+"，很不專心喔，要加油喔。");
+            }else if(tempattention>20&&tempattention<=40){
+                ShowAttentionMsgDialog("你的專注度為"+tempattention+"，有點不專心喔。");
+            }else if(tempattention>40&&tempattention<=60){
+                ShowAttentionMsgDialog("你的專注度為"+tempattention+"，還可以喔，再專心一點就可以體驗腦波拍照喔。");
+            }else if(tempattention>60){
+                ShowAttentionMsgDialog("你的專注度為"+tempattention+"，好專心喔，趕快切換相機模式來體驗腦波拍照喔。");
+            }
+            return false;
+        }
+    };
+    private void ShowAttentionMsgDialog(String Msg)
+    {
+        AlertDialog.Builder MyAlertDialog = new AlertDialog.Builder(this);
+        MyAlertDialog.setTitle("專注度詳細資訊");
+        MyAlertDialog.setMessage(Msg);
+        DialogInterface.OnClickListener OkClick = new DialogInterface.OnClickListener()
+        {
+            public void onClick(DialogInterface dialog, int which) {
+                //如果不做任何事情 就會直接關閉 對話方塊
+            }
+        };;
+        MyAlertDialog.setNeutralButton("我知道了",OkClick );
+        MyAlertDialog.show();
+    }
+
+    private ImageView.OnLongClickListener relaxtextListener=new ImageView.OnLongClickListener(){
+
+        @Override
+        public boolean onLongClick(View v) {
+            if(temprelax>=0&&temprelax<=20){
+                ShowRelaxMsgDialog("你的專注度為"+temprelax+"，很緊張喔，放輕鬆點。");
+            }else if(temprelax>20&&temprelax<=40){
+                ShowRelaxMsgDialog("你的專注度為"+temprelax+"，有點不放鬆喔。");
+            }else if(temprelax>40&&temprelax<=60){
+                ShowRelaxMsgDialog("你的專注度為"+temprelax+"，還可以喔，多放輕鬆喔。");
+            }else if(temprelax>60){
+                ShowRelaxMsgDialog("你的專注度為"+temprelax+"，好放鬆喔，但是別睡著喔:P");
+            }
+            return false;
+        }
+    };
+    private void ShowRelaxMsgDialog(String Msg)
+    {
+        AlertDialog.Builder MyAlertDialog = new AlertDialog.Builder(this);
+        MyAlertDialog.setTitle("放鬆度詳細資訊");
+        MyAlertDialog.setMessage(Msg);
+        DialogInterface.OnClickListener OkClick = new DialogInterface.OnClickListener()
+        {
+            public void onClick(DialogInterface dialog, int which) {
+                //如果不做任何事情 就會直接關閉 對話方塊
+            }
+        };;
+        MyAlertDialog.setNeutralButton("我知道了",OkClick );
+        MyAlertDialog.show();
+    }
     public void attnumberone(int num, ImageView i){//專注個位數
 
         num=num%10;

@@ -22,7 +22,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/imageView2"
+            android:id="@+id/attentiontext"
             android:src="@drawable/number_02" />
 
         <ImageView
@@ -51,7 +51,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/imageView5"
+            android:id="@+id/relaxtext"
             android:src="@drawable/number_05" />
 
         <ImageView

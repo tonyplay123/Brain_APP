@@ -11,12 +11,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
+import android.support.v7.app.ActionBarActivity;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -29,106 +32,148 @@ import com.facebook.share.model.SharePhoto;
 import com.facebook.share.model.SharePhotoContent;
 import com.facebook.share.widget.ShareDialog;
 
-public class PicturePool extends Activity {
+public class PicturePool extends ActionBarActivity {
 
-    private int count;
-    private Bitmap[] thumbnails;
-    private boolean[] thumbnailsselection;
-    private String[] arrPath;
-    private ImageAdapter imageAdapter;
-    ArrayList<String> f = new ArrayList<String>();// list of file paths
-    File[] listFile;
+    public ImageAdapter imageAdapter;
 
+    public GridView imagegrid;
     ShareDialog shareDialog;
-    String path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()+"/Camera/1444032498686.jpg";//要鎖定路徑
-
+    SharePhotoContent content;
+    ArrayList<SharePhoto> photos = new ArrayList<>();
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_picture_pool);
-        getFromSdcard();
-        GridView imagegrid = (GridView) findViewById(R.id.PhoneImageGrid);
+
         imageAdapter = new ImageAdapter();
+        imageAdapter.initialize();
+        imagegrid = (GridView) findViewById(R.id.PhoneImageGrid);
         imagegrid.setAdapter(imageAdapter);
-        ImageButton emotionbtn = (ImageButton) findViewById(R.id.emotionbutton);
-        emotionbtn.setOnClickListener(emotionListenner);
+        shareDialog = new ShareDialog(this);
+        ImageButton camerabtn = (ImageButton) findViewById(R.id.camerabutton);
+        camerabtn.setOnClickListener(cameraListenner);
 
-        ImageButton camerabtn =(ImageButton) findViewById(R.id.camerabutton);
-        camerabtn.setOnClickListener(cameraListener);
+        ImageButton emotionbtn =(ImageButton) findViewById(R.id.emotionbutton);
+        emotionbtn.setOnClickListener(emotionListener);
 
-        ImageButton sharebtn =(ImageButton) findViewById(R.id.sharebutton);
-        shareDialog=new ShareDialog(this);
-        sharebtn.setOnClickListener(new View.OnClickListener() {
-            @Override
+        ImageButton selectBtn = (ImageButton) findViewById(R.id.picturebutton);
+        selectBtn.setOnClickListener(new View.OnClickListener() {
+
             public void onClick(View v) {
-                Bitmap image = BitmapFactory.decodeFile(path);
-                SharePhoto photo = new SharePhoto.Builder().setBitmap(image).build();
-                SharePhotoContent content = new SharePhotoContent.Builder().addPhoto(photo).build();
-                shareDialog.show(content);
+                final int len =imageAdapter.images.size();
+                int cnt = 0;
+                String selectImages = "";
+                for (int i = 0; i < len; i++) {
+                    if (imageAdapter.images.get(i).selection) {
+                        cnt++;
+                        selectImages = selectImages
+                                + imageAdapter.images.get(i).id + ",";
+                }
+                }
+                if (cnt == 0) {
+                    Toast.makeText(getApplicationContext(),
+                            "Please select at least one image",
+                            Toast.LENGTH_LONG).show();
+                } else {
+
+                    selectImages = selectImages.substring(0,selectImages.lastIndexOf(","));
+                    String[] arrIds =selectImages.split(",");
+
+                    for(int i = 0;i<arrIds.length;i++) {
+                        String path = imageAdapter.mFilePath[Integer.parseInt(arrIds[i])];
+
+                        Bitmap bitmap = BitmapFactory.decodeFile(path);
+                        SharePhoto photo = new SharePhoto.Builder().setBitmap(bitmap).build();
+                        photos.add(photo);
+
+
+                    }
+                    share(photos);
+
+                }
+
             }
         });
 
+
+
+
+
     }
-    private ImageButton.OnClickListener emotionListenner = new
+
+    private ImageButton.OnClickListener cameraListenner = new
             ImageButton.OnClickListener() {
                 public void onClick(View v){
-                    finish();//轉跳頁面不佔存原來的Activity
+
                     Intent intent = new Intent();
-                    intent.setClass(PicturePool.this,braininfo.class);
+                    intent.setClass(PicturePool.this,Cameramodel.class);
                     startActivity(intent);
                     // setContentView(R.layout.activity_cameramodel);
                 }
             };
 
 
-    private ImageButton.OnClickListener cameraListener =new
+    private ImageButton.OnClickListener emotionListener =new
             ImageButton.OnClickListener(){
                 @Override
                 public void onClick(View v) {
-                    finish();
+
                     Intent intent =new Intent();
-                    intent.setClass(PicturePool.this,Cameramodel.class);
+                    intent.setClass(PicturePool.this,braininfo.class);
                     startActivity(intent);
                 }
             };
 
-    private ImageButton.OnClickListener shareListener =new
-            ImageButton.OnClickListener(){
-                @Override
-                public void onClick(View v) {
-            //放分享的程式碼
+    public void share(ArrayList photos){
 
-                }
-            };
-    public void getFromSdcard()
-    {
-        File file= new File(android.os.Environment.getExternalStorageDirectory(),"camtest");
-
-        if (file.isDirectory())
-        {
-            listFile = file.listFiles();
-
-
-            for (int i = 0; i < listFile.length; i++)
-            {
-
-                f.add(listFile[i].getAbsolutePath());
-
-            }
+        if (ShareDialog.canShow(SharePhotoContent.class)) {
+            content = new SharePhotoContent.Builder().addPhotos(photos).build();
+            shareDialog.show(content);
         }
+
     }
+
+
 
     public class ImageAdapter extends BaseAdapter {
         private LayoutInflater mInflater;
+        public ArrayList<ImageItem> images = new ArrayList<ImageItem>();
+        File[] listFile;
+        String[] mFilePath,mFilename;
 
         public ImageAdapter() {
             mInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
+        public void initialize() {
+            images.clear();
+            File file= new File(android.os.Environment.getExternalStorageDirectory(),"camtest");
+
+            if (file.isDirectory())
+            {
+                listFile = file.listFiles();
+                mFilePath = new String[listFile.length];
+                mFilename = new String[listFile.length];
+                for (int i = 0; i < listFile.length; i++)
+                {
+                    mFilePath[i] = listFile[i].getAbsolutePath();
+                    mFilename[i] = listFile[i].getName();
+                    int id = i;
+                    ImageItem imageItem = new ImageItem();
+                    imageItem.id = id;
+                    imageItem.img = MediaStore.Images.Thumbnails.getThumbnail(
+                            getApplicationContext().getContentResolver(), id,
+                            MediaStore.Images.Thumbnails.MINI_KIND,null);
+                    imageItem.img = BitmapFactory.decodeFile(mFilePath[i]);
+                    images.add(imageItem);
+                }
+            }
+        }
+
         public int getCount() {
-            return f.size();
+            return images.size();
         }
 
         public Object getItem(int position) {
@@ -137,7 +182,6 @@ public class PicturePool extends Activity {
 
         public long getItemId(int position) {
             return position;
-
         }
 
         public View getView(int position, View convertView, ViewGroup parent) {
@@ -147,23 +191,66 @@ public class PicturePool extends Activity {
                 convertView = mInflater.inflate(
                         R.layout.gelleryitem, null);
                 holder.imageview = (ImageView) convertView.findViewById(R.id.thumbImage);
-
+                holder.checkbox = (CheckBox) convertView.findViewById(R.id.itemCheckBox);
                 convertView.setTag(holder);
             }
             else {
                 holder = (ViewHolder) convertView.getTag();
             }
 
+            ImageItem item = images.get(position);
+            holder.checkbox.setId(position);
+            holder.imageview.setId(position);
 
-            Bitmap myBitmap = BitmapFactory.decodeFile(f.get(position));
-            holder.imageview.setImageBitmap(myBitmap);
+            holder.checkbox.setOnClickListener(new View.OnClickListener() {
+
+                public void onClick(View v) {
+                    // TODO Auto-generated method stub
+                    CheckBox cb = (CheckBox) v;
+                    int id = cb.getId();
+                    if (images.get(id).selection) {
+                        cb.setChecked(false);
+                        images.get(id).selection = false;
+                    } else {
+                        cb.setChecked(true);
+                        images.get(id).selection = true;
+                    }
+
+                }
+            });
+
+
+//            holder.imageview.setOnClickListener(new View.OnClickListener() {
+//
+//                public void onClick(View v) {
+//                    // TODO Auto-generated method stub
+//                    int id = v.getId();
+//                    ImageItem item = images.get(id);
+//                    Intent intent = new Intent();
+//                    intent.setAction(Intent.ACTION_VIEW);
+//                    if (images != null && getCount() > 0) {
+//
+//                            String path = mFilePath[item.id];
+//                            item.img = BitmapFactory.decodeFile(path);
+//
+//                    }
+//                }
+//            });
+
+            holder.imageview.setImageBitmap(item.img);
+            holder.checkbox.setChecked(item.selection);
             return convertView;
         }
     }
     class ViewHolder {
         ImageView imageview;
+        CheckBox checkbox;
+    }
 
-
+    class ImageItem {
+        boolean selection;
+        int id;
+        Bitmap img;
     }
 
 }
